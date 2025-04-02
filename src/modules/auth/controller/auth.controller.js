@@ -33,7 +33,7 @@ export const signin=async (req,res,next)=>{
                 if(!match){
                     return next(new Error('Incorrect Password',{cause:400}))
                 }else{
-                    const token= await jwt.sign({id:user._id, role:user.role}, process.env.secretkey)
+                    const token=  jwt.sign({id:user._id, role:user.role}, process.env.secretkey)
                     return res.status(200).json({message:'Success',token})
                 }
      }
