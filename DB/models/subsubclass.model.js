@@ -22,6 +22,11 @@ const subsubclassSchema= new Schema({
         type: Types.ObjectId,
         ref:'subclass',
     },
+    sectorid:{
+            type: Types.ObjectId,
+            ref:'sector',
+            required:true
+},
 }, {timestamps:true,
     toJSON:{virtuals:true},
     toObject:{virtuals:true}

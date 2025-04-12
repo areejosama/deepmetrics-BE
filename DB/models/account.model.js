@@ -23,6 +23,11 @@ const accountSchema= new Schema({
         ref:'subsubclass',
         required:true
     },
+    sectorid:{
+                type: Types.ObjectId,
+                ref:'sector',
+                required:true
+    },
 }, {timestamps:true,
     toJSON:{virtuals:true},
     toObject:{virtuals:true}

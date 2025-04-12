@@ -22,6 +22,11 @@ const subaccountSchema= new Schema({
         type: Types.ObjectId,
         ref:'account',
     },
+    sectorid:{
+                type: Types.ObjectId,
+                ref:'sector',
+                required:true
+    },
 }, {timestamps:true});
 
 const subaccountmodel= model('subaccount', subaccountSchema)

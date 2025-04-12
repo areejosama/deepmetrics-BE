@@ -22,8 +22,9 @@ export const createsubclass = {
       classid:  joi.string()
       .required()
       .min(24)
-        .max(24)
+      .max(24)
     })
+
   };
 
   export const createsub2class = {
@@ -35,6 +36,10 @@ export const createsubclass = {
         .pattern(/^[A-Z]/)  
         .message('Sub Sub Class must start with an uppercase letter'),
       subclassid: joi.string()
+      .required()
+      .min(24)
+      .max(24),
+      sectorid:joi.string()
       .required()
       .min(24)
       .max(24)
@@ -52,7 +57,11 @@ export const createsubclass = {
       subsubclassid:  joi.string()
       .required()
       .min(24)
-      .max(24) 
+      .max(24),
+      sectorid: joi.string()
+      .required()
+      .min(24)
+      .max(24),
     })
   };
 
@@ -67,6 +76,10 @@ export const createsubclass = {
       accountid:  joi.string()
       .required()
       .min(24)
-      .max(24) 
+      .max(24),
+      sectorid: joi.string()
+      .required()
+      .min(24)
+      .max(24),
     })
   };

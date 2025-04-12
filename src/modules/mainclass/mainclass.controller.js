@@ -7,6 +7,7 @@ import { accountmodel } from "../../../DB/models/account.model.js";
 import { subaccountmodel } from "../../../DB/models/subaccount.model.js";
 import { FinancialDatamodel } from "../../../DB/models/finaldata.model.js";
 import { finReportmodel } from "../../../DB/models/financialReport.model.js";
+import { sectormodel } from "../../../DB/models/sector.model.js";
 
 export const getmainclass= async (req,res,next) =>{
     try{
@@ -34,22 +35,16 @@ export const createclass = async (req,res,next) =>{
 
 export const createsubclass = async (req, res, next) => {
     try {
-        const { classid, subclass } = req.body; // أخذ classid و subclass من req.body
-
-        // التحقق من وجود الكلاس الرئيسي باستخدام المعرف (classid)
+        const { classid, subclass } = req.body; 
         if (!await classmodel.findById(classid)) {
             return next(new Error('Class not found', { cause: 404 }));
         }
-
-        // التحقق من عدم وجود Subclass بنفس الاسم
         if (await subclassmodel.exists({ subclass })) {
             return next(new Error('Subclass already exists', { cause: 400 }));
         }
-
-        // إنشاء الـ Subclass
         await subclassmodel.create({
             subclass,
-            classid, // استخدام classid مباشرة من req.body
+            classid, 
             createdby: req.user._id,
             updatedby: req.user._id,
         });
@@ -76,27 +71,19 @@ export const getsubclass= async (req,res,next) =>{
 
 export const updatesubclass = async (req, res, next) => {
     try {
-        const { subclassId } = req.params; // معرف الكلاس الفرعي من المسار
-        const { subclass, classid } = req.body; // الاسم الجديد ومعرف الكلاس الرئيسي من البيانات المرسلة
-
-        // التحقق من وجود الكلاس الفرعي
+        const { subclassId } = req.params; 
+        const { subclass, classid } = req.body; 
         const existingSubClass = await subclassmodel.findById(subclassId);
         if (!existingSubClass) {
             return next(new Error('Subclass not found', { cause: 404 }));
         }
-
-        // التحقق من وجود الكلاس الرئيسي
         if (!await classmodel.findById(classid)) {
             return next(new Error('Main Class not found', { cause: 404 }));
         }
-
-        // التحقق من عدم تكرار اسم الكلاس الفرعي (باستثناء السجل الحالي)
         const duplicateSubClass = await subclassmodel.findOne({ subclass, _id: { $ne: subclassId } });
         if (duplicateSubClass) {
             return next(new Error('Subclass name already exists', { cause: 400 }));
         }
-
-        // تحديث الكلاس الفرعي
         const updatedSubClass = await subclassmodel.findByIdAndUpdate(
             subclassId,
             {
@@ -104,7 +91,7 @@ export const updatesubclass = async (req, res, next) => {
                 classid,
                 updatedby: req.user._id,
             },
-            { new: true } // لإرجاع السجل المحدث
+            { new: true } 
         );
 
         return res.status(200).json({ message: 'Subclass Updated Successfully', data: updatedSubClass });
@@ -136,14 +123,14 @@ export const deletesubclass = async (req, res, next) => {
 
 export const createsubsubclass = async (req, res, next) => {
     try {
-        const { subclassid, subsubclass } = req.body;
+        const { subclassid, subsubclass, sectorid } = req.body;
         if (!await subclassmodel.findById(subclassid)) {
             return next(new Error('Subclass not found', { cause: 404 }));
         }
         if (await subsubclassmodel.exists({ subsubclass })) {
             return next(new Error('Subsubclass already exists', { cause: 400 }));
         }
-        await subsubclassmodel.create({ subsubclass, subclassid, createdby: req.user._id, updatedby: req.user._id });
+        await subsubclassmodel.create({ subsubclass, subclassid, sectorid ,createdby: req.user._id, updatedby: req.user._id });
         return res.status(201).json({ message: 'Subsubclass Created Successfully' });
     } catch (error) {
         console.error('Error creating subsubclass:', error);
@@ -155,7 +142,8 @@ export const getsubsubclass= async (req,res,next) =>{
     try{
         const { page, size } = req.query;
         const { limit, skip } = pagination(page, size);
-        const allmainclass = await subsubclassmodel.find({}).skip(skip).limit(limit).exec();
+        const allmainclass = await subsubclassmodel.find({}).populate('subclassid', 'subclass')
+        .populate('sectorid', 'Sector').skip(skip).limit(limit).exec();
         if(allmainclass){
             return res.status(201).json({ message: 'all classes are here!' , data: allmainclass});
         }
@@ -166,10 +154,8 @@ export const getsubsubclass= async (req,res,next) =>{
 
 export const updatesubsubclass = async (req, res, next) => {
     try {
-        const { subSubClassId } = req.params; // معرف الكلاس الفرعي الفرعي من المسار
-        const { subsubclass, subclassid } = req.body; // الاسم الجديد ومعرف الكلاس الفرعي من البيانات المرسلة
-
-        // التحقق من وجود الكلاس الفرعي الفرعي
+        const { subSubClassId } = req.params; 
+        const { subsubclass, subclassid, sectorid } = req.body; 
         const existingSubSubClass = await subsubclassmodel.findById(subSubClassId);
         if (!existingSubSubClass) {
             return next(new Error('Sub Sub Class not found', { cause: 404 }));
@@ -189,15 +175,15 @@ export const updatesubsubclass = async (req, res, next) => {
             return next(new Error('Sub Sub Class name already exists', { cause: 400 }));
         }
 
-        // تحديث الكلاس الفرعي الفرعي
         const updatedSubSubClass = await subsubclassmodel.findByIdAndUpdate(
             subSubClassId,
             {
                 subsubclass,
                 subclassid,
+                sectorid,
                 updatedby: req.user._id,
             },
-            { new: true } // لإرجاع السجل المحدث
+            { new: true } 
         );
 
         return res.status(200).json({
@@ -228,14 +214,14 @@ export const deletesub2class = async (req, res, next) => {
 
 export const createaccount = async (req, res, next) => {
     try {
-        const { subsubclassid ,account } = req.body;
+        const { subsubclassid ,account, sectorid } = req.body;
         if (!await subsubclassmodel.findById(subsubclassid)) {
             return next(new Error('Subsubclass not found', { cause: 404 }));
         }
         if (await accountmodel.exists({ account })) {
             return next(new Error('Account already exists', { cause: 400 }));
         }
-        await accountmodel.create({ account, subsubclassid, createdby: req.user._id, updatedby: req.user._id });
+        await accountmodel.create({ account, subsubclassid, sectorid,createdby: req.user._id, updatedby: req.user._id });
         return res.status(201).json({ message: 'Account Created Successfully' });
     } catch (error) {
         console.error('Error creating account:', error);
@@ -247,7 +233,8 @@ export const getmainaccount = async (req, res, next)=>{
     try{
         const { page, size } = req.query;
         const { limit, skip } = pagination(page, size);
-        const allmainaccount = await accountmodel.find({}).skip(skip).limit(limit).exec();
+        const allmainaccount = await accountmodel.find({}).populate('subsubclassid', 'subsubclass')
+        .populate('sectorid', 'Sector').skip(skip).limit(limit).exec();
         if(allmainaccount){
             return res.status(201).json({ message: 'all accounts are here!' , data: allmainaccount});
         }
@@ -260,7 +247,7 @@ export const getmainaccount = async (req, res, next)=>{
 export const updateAccount = async (req, res, next) => {
     try {
         const { mainAccountId } = req.params; // معرف الحساب الرئيسي من المسار
-        const { account, subsubclassid } = req.body; // الاسم الجديد ومعرف الكلاس الفرعي الفرعي من البيانات المرسلة
+        const { account, subsubclassid, sectorid } = req.body; // الاسم الجديد ومعرف الكلاس الفرعي الفرعي من البيانات المرسلة
 
         // التحقق من وجود الحساب الرئيسي
         const existingAccount = await accountmodel.findById(mainAccountId);
@@ -288,6 +275,7 @@ export const updateAccount = async (req, res, next) => {
             {
                 account,
                 subsubclassid,
+                sectorid,
                 updatedby: req.user._id,
             },
             { new: true } // لإرجاع السجل المحدث
@@ -325,11 +313,11 @@ export const deleteMainAccount = async (req, res, next) => {
 
 export const getSubAccounts = async (req, res, next) => {
     try {
-        const subAccounts = await subaccountmodel.find().populate('accountid', 'account'); // جلب اسم الحساب الرئيسي
+        const subAccounts = await subaccountmodel.find().populate('accountid', 'account').populate('sectorid', 'Sector'); // جلب اسم الحساب الرئيسي
         return res.status(200).json({
             message: 'Sub Accounts Retrieved Successfully',
             data: subAccounts,
-        });
+        });      
     } catch (error) {
         console.error('Error fetching sub accounts:', error);
         return next(new Error('Internal Server Error', { cause: 500 }));
@@ -338,7 +326,7 @@ export const getSubAccounts = async (req, res, next) => {
 
 export const createSubAccount = async (req, res, next) => {
     try {
-        const { subaccount, accountid } = req.body;
+        const { subaccount, accountid, sectorid } = req.body;
 
         // التحقق من وجود الحساب الرئيسي
         if (!await accountmodel.findById(accountid)) {
@@ -353,6 +341,7 @@ export const createSubAccount = async (req, res, next) => {
         const newSubAccount = await subaccountmodel.create({
             subaccount,
             accountid,
+            sectorid,
             createdby: req.user._id,
             updatedby: req.user._id,
         });
@@ -370,7 +359,7 @@ export const createSubAccount = async (req, res, next) => {
 export const updateSubAccount = async (req, res, next) => {
     try {
         const { subAccountId } = req.params;
-        const { subaccount, accountid } = req.body;
+        const { subaccount, accountid, sectorid } = req.body;
 
         // التحقق من وجود الحساب الفرعي
         const existingSubAccount = await subaccountmodel.findById(subAccountId);
@@ -398,6 +387,7 @@ export const updateSubAccount = async (req, res, next) => {
             {
                 subaccount,
                 accountid,
+                sectorid,
                 updatedby: req.user._id,
             },
             { new: true }
@@ -448,7 +438,7 @@ export const createFinancialData = async (req, res) => {
     }
   };
 
-  export const getFinancialData = async (req, res, next) => {
+export const getFinancialData = async (req, res, next) => {
     try {
         const financialData = await finReportmodel.find({}).populate('companyid');
         return res.status(200).json({
@@ -594,10 +584,7 @@ export const deleteFinancialRepo = async (req, res, next) => {
 export const getClassWithFinancialData = async (req, res) => {
     try {
       const { classId } = req.params;
-      //console.log(`Fetching class with ID: ${classId}`);
-  
-      // جلب الكلاس مع التفرعات
-      const populatedClass = await classmodel.findById(classId)
+        const populatedClass = await classmodel.findById(classId)
         .populate({
           path: 'subclasses',
           populate: {
@@ -613,26 +600,18 @@ export const getClassWithFinancialData = async (req, res) => {
         console.log(`Class with ID ${classId} not found`);
         return res.status(404).json({ message: 'Class not found' });
       }
-  
-      //console.log('Populated Class:', JSON.stringify(populatedClass, null, 2));
-  
-      // جمع الـ subaccount IDs
-      const subaccountIds = populatedClass.subclasses.flatMap(subclass =>
+        const subaccountIds = populatedClass.subclasses.flatMap(subclass =>
         subclass.subsubclasses.flatMap(subsubclass =>
           subsubclass.accounts.flatMap(account =>
             account.subaccounts.map(subaccount => subaccount._id)
           )
         )
       );
-  
-      //console.log('Subaccount IDs:', subaccountIds);
-  
-      // جلب البيانات المالية
+      
       const financialData = await FinancialDatamodel.find({
         'finaldata.subaccount': { $in: subaccountIds }
       }).select('finaldata.subaccount finaldata.amount');
   
-      // تحويل البيانات المالية إلى Map
       const financialMap = new Map();
       financialData.forEach(fd => {
         fd.finaldata.forEach(data => {
@@ -640,10 +619,7 @@ export const getClassWithFinancialData = async (req, res) => {
         });
       });
   
-      //console.log('Financial Data Map:', [...financialMap.entries()]);
-  
-      // بناء الكلاس مع البيانات المالية (بدون فلترة إجبارية)
-      const classWithFinancialData = {
+        const classWithFinancialData = {
         ...populatedClass.toObject(),
         subclasses: populatedClass.subclasses.map(subclass => ({
           ...subclass.toObject(),
@@ -659,8 +635,6 @@ export const getClassWithFinancialData = async (req, res) => {
           }))
         }))
       };
-  
-      //console.log('Final Class Data with Financial Info:', JSON.stringify(classWithFinancialData, null, 2));
   
       res.json(classWithFinancialData);
   
@@ -745,3 +719,186 @@ export const getLatest2Report = async (req, res, next) => {
     }
   };
 
+// export const getClassWithFinancialData = async (req, res) => {
+//   try {
+//     const { classId } = req.params;
+//     const { companyid } = req.body; 
+
+//     if (!classId || !companyid) {
+//       return res.status(400).json({ message: 'Class ID and Company ID are required' });
+//     }
+//     const company = await companymodel.findById(companyid).select('sectorid');
+//     if (!company) {
+//       return res.status(404).json({ message: 'Company not found' });
+//     }
+
+//     const populatedClass = await classmodel.findById(classId)
+//       .populate({
+//         path: 'subclasses',
+//         populate: {
+//           path: 'subsubclasses',
+//           populate: {
+//             path: 'accounts',
+//             populate: { path: 'subaccounts' }
+//           },
+          
+//         }
+//       });
+
+//     if (!populatedClass) {
+//       console.log(`Class with ID ${classId} not found`);
+//       return res.status(404).json({ message: 'Class not found' });
+//     }
+//     populatedClass.subclasses = populatedClass.subclasses.filter(subclass => 
+//       subclass.sectorid === company.sectorid
+//     );
+//     console.log(populatedClass)
+//     if (populatedClass.subclasses.length === 0) {
+//       return res.status(404).json({ message: 'No Sub-Classes found for this sector' });
+//     }
+
+//     const subaccountIds = populatedClass.subclasses.flatMap(subclass =>
+//       subclass.subsubclasses.flatMap(subsubclass =>
+//         subsubclass.accounts.flatMap(account =>
+//           account.subaccounts.map(subaccount => subaccount._id)
+//         )
+//       )
+//     );
+
+//     // جلب البيانات المالية
+//     const financialData = await FinancialDatamodel.find({
+//       'finaldata.subaccount': { $in: subaccountIds }
+//     }).select('finaldata.subaccount finaldata.amount');
+
+//     // تحويل البيانات المالية إلى Map
+//     const financialMap = new Map();
+//     financialData.forEach(fd => {
+//       fd.finaldata.forEach(data => {
+//         financialMap.set(data.subaccount.toString(), data.amount);
+//       });
+//     });
+
+//     // بناء الكلاس مع البيانات المالية
+//     const classWithFinancialData = {
+//       ...populatedClass.toObject(),
+//       subclasses: populatedClass.subclasses.map(subclass => ({
+//         ...subclass.toObject(),
+//         subsubclasses: subclass.subsubclasses.map(subsubclass => ({
+//           ...subsubclass.toObject(),
+//           accounts: subsubclass.accounts.map(account => ({
+//             ...account.toObject(),
+//             subaccounts: account.subaccounts.map(subaccount => {
+//               const amount = financialMap.get(subaccount._id.toString());
+//               return amount !== undefined ? { ...subaccount.toObject(), amount } : subaccount.toObject();
+//             })
+//           }))
+//         }))
+//       }))
+//     };
+
+//     res.json(classWithFinancialData);
+
+//   } catch (error) {
+//     console.error('Error fetching class with financial data:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
+
+// export const getClassWithFinancialData = async (req, res) => {
+//   try {
+//     const { classId } = req.params;
+//     // const { companyid } = req.body;
+
+//     if (!classId || !companyid) {
+//       return res.status(400).json({ message: 'Class ID and Company ID are required' });
+//     }
+
+//     const company = await companymodel.findById(companyid).select('sectorid');
+//     if (!company) {
+//       return res.status(404).json({ message: 'Company not found' });
+//     }
+
+//     const populatedClass = await classmodel.findById(classId)
+//       .populate({
+//         path: 'subclasses',
+//         populate: [
+//           {
+//             path: 'subsubclasses',
+//             populate: [
+//               {
+//                 path: 'accounts',
+//                 populate: { path: 'subaccounts' },
+//               },
+//               {
+//                 path: 'sectorid', // Populate للـ sectorid في subsubclass
+//                 select: 'Sector',
+//               },
+//             ],
+//           },
+//         ],
+//       });
+
+//     if (!populatedClass) {
+//       console.log(`Class with ID ${classId} not found`);
+//       return res.status(404).json({ message: 'Class not found' });
+//     }
+
+//     populatedClass.subclasses = populatedClass.subclasses
+//       .map(subclass => {
+//         subclass.subsubclasses = subclass.subsubclasses.filter(subsubclass => 
+//           subsubclass.sectorid && subsubclass.sectorid._id.toString() === company.sectorid.toString()
+//         );
+//         return subclass;
+//       })
+//       .filter(subclass => subclass.subsubclasses.length > 0); // حذف الـ subclasses اللي مالهاش subsubclasses بعد الفلترة
+
+//     if (populatedClass.subclasses.length === 0) {
+//       return res.status(404).json({ message: 'No Sub-Classes found with SubSubClasses matching this sector' });
+//     }
+
+//     // جلب الـ subaccount IDs
+//     const subaccountIds = populatedClass.subclasses.flatMap(subclass =>
+//       subclass.subsubclasses.flatMap(subsubclass =>
+//         subsubclass.accounts.flatMap(account =>
+//           account.subaccounts.map(subaccount => subaccount._id)
+//         )
+//       )
+//     );
+
+//     // جلب البيانات المالية
+//     const financialData = await FinancialDatamodel.find({
+//       'finaldata.subaccount': { $in: subaccountIds },
+//     }).select('finaldata.subaccount finaldata.amount');
+
+//     const financialMap = new Map();
+//     financialData.forEach(fd => {
+//       fd.finaldata.forEach(data => {
+//         financialMap.set(data.subaccount.toString(), data.amount);
+//       });
+//     });
+
+//     // إضافة البيانات المالية للـ Response
+//     const classWithFinancialData = {
+//       ...populatedClass.toObject(),
+//       subclasses: populatedClass.subclasses.map(subclass => ({
+//         ...subclass.toObject(),
+//         subsubclasses: subclass.subsubclasses.map(subsubclass => ({
+//           ...subsubclass.toObject(),
+//           sectorName: subsubclass.sectorid?.Sector || 'Unknown', // إضافة sectorName على مستوى subsubclass
+//           accounts: subsubclass.accounts.map(account => ({
+//             ...account.toObject(),
+//             subaccounts: account.subaccounts.map(subaccount => {
+//               const amount = financialMap.get(subaccount._id.toString());
+//               return amount !== undefined ? { ...subaccount.toObject(), amount } : subaccount.toObject();
+//             }),
+//           })),
+//         })),
+//       })),
+//     };
+
+//     res.json(classWithFinancialData);
+//   } catch (error) {
+//     console.error('Error fetching class with financial data:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
