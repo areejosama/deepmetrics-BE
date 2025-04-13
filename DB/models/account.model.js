@@ -5,7 +5,7 @@ const accountSchema= new Schema({
         type:String, 
         required:[true,'Account Name Is Required'],
         min:[3,'min length is 3'],
-        max:[40, 'max length is 40'],
+        max:[70, 'max length is 70'],
         unique:[true, 'Account Name already exist']
     },
     createdby:{
