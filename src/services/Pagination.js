@@ -4,7 +4,7 @@ export function pagination(page,size){
         page=1;
     }
     if(!size || size<=0){
-        size=17;
+        size=70;
     }
 
     const skip= ( page - 1 ) * size;
