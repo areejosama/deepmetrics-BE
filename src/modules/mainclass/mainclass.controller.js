@@ -650,7 +650,7 @@ export const getLatest2Report = async (req, res, next) => {
   
     try {
       const latestReport = await FinancialDatamodel.findOne({ companyid: companyId })
-        .sort({ timestamp: -1 })
+        .sort({ timestamp: -1, _id: -1 })
         .populate('companyid', 'name image')
         .populate('FinReport_id', 'reportYear period')
         .populate('createdby', 'name')

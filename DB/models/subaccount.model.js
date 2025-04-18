@@ -5,8 +5,7 @@ const subaccountSchema= new Schema({
         type:String, 
         required:[true,'Sub Account Name Is Required'],
         min:[3,'min length is 3'],
-        max:[40, 'max length is 40'],
-        unique:[true, 'Sub Account Name already exist']
+        max:[70, 'max length is 70'],
     },
     createdby:{
        type: Types.ObjectId,

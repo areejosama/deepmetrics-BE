@@ -2,7 +2,7 @@ import joi from 'joi';
 
 export const createsector={
     body:joi.object().required().keys({
-        Sector:joi.string().required().min(3).max(25)
+        Sector:joi.string().required().min(3).max(70)
      }) 
 }
 
@@ -14,6 +14,6 @@ export const deletesector={
 
 export const updatesector={
      body:joi.object().required().keys({
-        Sector:joi.string().required().min(3).max(25)
+        Sector:joi.string().required().min(3).max(70)
      })   
 }

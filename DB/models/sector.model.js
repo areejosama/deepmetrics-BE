@@ -5,7 +5,7 @@ const Sectorschema= new Schema({
         type:String,
         required:[true, 'Sector Is Required'],
         min:[3, 'min length is 3'],
-        max:[25, 'max length is 25'],
+        max:[70, 'max length is 70'],
         unique: true 
     },
     createdby:{

@@ -5,8 +5,7 @@ const subsubclassSchema= new Schema({
         type:String, 
         required:[true,'Sub Sub Class Name Is Required'],
         min:[3,'min length is 3'],
-        max:[40, 'max length is 40'],
-        unique:[true, 'Sub Sub Class Name already exist']
+        max:[70, 'max length is 70'],
     },
     createdby:{
        type: Types.ObjectId,

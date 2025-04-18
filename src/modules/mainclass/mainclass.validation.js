@@ -5,7 +5,7 @@ export const createclass = {
     name: joi.string()
       .required()
       .min(3)
-      .max(40)
+      .max(70)
       .pattern(/^[A-Z]/)  
       .message('Class must start with an uppercase letter')
   })
@@ -16,7 +16,7 @@ export const createsubclass = {
       subclass: joi.string()
         .required()
         .min(3)
-        .max(40)
+        .max(70)
         .pattern(/^[A-Z]/)  
         .message('Sub Class must start with an uppercase letter'),
       classid:  joi.string()
@@ -32,7 +32,7 @@ export const createsubclass = {
       subsubclass: joi.string()
         .required()
         .min(3)
-        .max(40)
+        .max(70)
         .pattern(/^[A-Z]/)  
         .message('Sub Sub Class must start with an uppercase letter'),
       subclassid: joi.string()
@@ -51,7 +51,7 @@ export const createsubclass = {
       account: joi.string()
         .required()
         .min(3)
-        .max(40)
+        .max(70)
         .pattern(/^[A-Z]/)  
         .message('account must start with an uppercase letter'),
       subsubclassid:  joi.string()
@@ -70,7 +70,7 @@ export const createsubclass = {
       subaccount: joi.string()
         .required()
         .min(3)
-        .max(40)
+        .max(70)
         .pattern(/^[A-Z]/)  
         .message('sub account must start with an uppercase letter'),
       accountid:  joi.string()

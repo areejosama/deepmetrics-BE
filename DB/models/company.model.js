@@ -5,7 +5,7 @@ const companySchema= new Schema({
         type:String, 
         required:[true,'company name is required'],
         min:[3,'min length is 3'],
-        max:[20, 'max length is 20'],
+        max:[40, 'max length is 40'],
         unique:[true, 'company name already exist']
     },
     sectorid:{
