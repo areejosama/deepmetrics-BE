@@ -127,9 +127,6 @@ export const createsubsubclass = async (req, res, next) => {
         if (!await subclassmodel.findById(subclassid)) {
             return next(new Error('Subclass not found', { cause: 404 }));
         }
-        if (await subsubclassmodel.exists({ subsubclass })) {
-            return next(new Error('Subsubclass already exists', { cause: 400 }));
-        }
         await subsubclassmodel.create({ subsubclass, subclassid, sectorid ,createdby: req.user._id, updatedby: req.user._id });
         return res.status(201).json({ message: 'Subsubclass Created Successfully' });
     } catch (error) {
@@ -166,14 +163,14 @@ export const updatesubsubclass = async (req, res, next) => {
             return next(new Error('Sub Class not found', { cause: 404 }));
         }
 
-        // التحقق من عدم تكرار اسم الكلاس الفرعي الفرعي (باستثناء السجل الحالي)
-        const duplicateSubSubClass = await subsubclassmodel.findOne({
-            subsubclass,
-            _id: { $ne: subSubClassId },
-        });
-        if (duplicateSubSubClass) {
-            return next(new Error('Sub Sub Class name already exists', { cause: 400 }));
-        }
+        // // التحقق من عدم تكرار اسم الكلاس الفرعي الفرعي (باستثناء السجل الحالي)
+        // const duplicateSubSubClass = await subsubclassmodel.findOne({
+        //     subsubclass,
+        //     _id: { $ne: subSubClassId },
+        // });
+        // if (duplicateSubSubClass) {
+        //     return next(new Error('Sub Sub Class name already exists', { cause: 400 }));
+        // }
 
         const updatedSubSubClass = await subsubclassmodel.findByIdAndUpdate(
             subSubClassId,
@@ -218,9 +215,9 @@ export const createaccount = async (req, res, next) => {
         if (!await subsubclassmodel.findById(subsubclassid)) {
             return next(new Error('Subsubclass not found', { cause: 404 }));
         }
-        if (await accountmodel.exists({ account })) {
-            return next(new Error('Account already exists', { cause: 400 }));
-        }
+        // if (await accountmodel.exists({ account })) {
+        //     return next(new Error('Account already exists', { cause: 400 }));
+        // }
         await accountmodel.create({ account, subsubclassid, sectorid,createdby: req.user._id, updatedby: req.user._id });
         return res.status(201).json({ message: 'Account Created Successfully' });
     } catch (error) {
@@ -260,14 +257,14 @@ export const updateAccount = async (req, res, next) => {
             return next(new Error('Sub Sub Class not found', { cause: 404 }));
         }
 
-        // التحقق من عدم تكرار اسم الحساب (باستثناء الحساب الحالي)
-        const duplicateAccount = await accountmodel.findOne({
-            account,
-            _id: { $ne: mainAccountId },
-        });
-        if (duplicateAccount) {
-            return next(new Error('A Main Account with this name already exists', { cause: 400 }));
-        }
+        // // التحقق من عدم تكرار اسم الحساب (باستثناء الحساب الحالي)
+        // const duplicateAccount = await accountmodel.findOne({
+        //     account,
+        //     _id: { $ne: mainAccountId },
+        // });
+        // if (duplicateAccount) {
+        //     return next(new Error('A Main Account with this name already exists', { cause: 400 }));
+        // }
 
         // تحديث الحساب الرئيسي
         const updatedAccount = await accountmodel.findByIdAndUpdate(
@@ -372,14 +369,14 @@ export const updateSubAccount = async (req, res, next) => {
             return next(new Error('Main Account not found', { cause: 404 }));
         }
 
-        // التحقق من عدم تكرار اسم الحساب الفرعي (باستثناء الحساب الحالي)
-        const duplicateSubAccount = await subaccountmodel.findOne({
-            subaccount,
-            _id: { $ne: subAccountId },
-        });
-        if (duplicateSubAccount) {
-            return next(new Error('A Sub Account with this name already exists', { cause: 400 }));
-        }
+        // // التحقق من عدم تكرار اسم الحساب الفرعي (باستثناء الحساب الحالي)
+        // const duplicateSubAccount = await subaccountmodel.findOne({
+        //     subaccount,
+        //     _id: { $ne: subAccountId },
+        // });
+        // if (duplicateSubAccount) {
+        //     return next(new Error('A Sub Account with this name already exists', { cause: 400 }));
+        // }
 
         // تحديث الحساب الفرعي
         const updatedSubAccount = await subaccountmodel.findByIdAndUpdate(
