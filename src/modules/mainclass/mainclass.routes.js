@@ -43,6 +43,7 @@ router.put('/finData/:id', auth(endpoint.Update) ,asynchandler(mainclasscontroll
 
 //repo
 router.post('/finRepo', auth(endpoint.Add) , asynchandler(mainclasscontroller.addFinancialData))
+router.put('/finRepo/:FinReport_id', auth(endpoint.Add) , asynchandler(mainclasscontroller.updateFinancialRepoData))
 router.get('/finRepo',asynchandler(mainclasscontroller.getFinancialRepo));
 router.delete('/finRepo/:id', auth(endpoint.Delete) ,asynchandler(mainclasscontroller.deleteFinancialRepo))
 
